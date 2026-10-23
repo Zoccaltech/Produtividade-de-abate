@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Produtividade - Abate | Minerva Foods</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        minerva: {
+                            blue: '#002B49',
+                            gold: '#C5A059',
+                            dark: '#001A2C',
+                            light: '#F4F7F9'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .badge-status {
+            transition: all 0.3s ease;
+        }
+        /* Transição suave ao alternar modo tela */
+        #containerPrincipal {
+            transition: max-width 0.3s ease, margin 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col justify-between">
+
+    <!-- Topbar Corporativo -->
+    <header class="bg-minerva-blue text-white shadow-md border-b-4 border-minerva-gold sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-minerva-gold flex items-center justify-center text-minerva-dark font-black text-xl shadow">
+                    <i class="fa-solid fa-cow"></i>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-tight">Produtividade de Abate</h1>
+                    <p class="text-[11px] sm:text-xs text-gray-300">Minerva Foods • Horário Balança</p>
+                </div>
+            </div>
+
+            <!-- Controles: Alternador de Tela (Mobile / PC) e Meta -->
+            <div class="flex items-center space-x-2">
+                <!-- Seletor Modo Tela -->
+                <div class="bg-blue-950 p-1 rounded-lg border border-blue-800 flex items-center text-xs">
+                    <button type="button" id="btnModoPC" onclick="setModoVisualizacao('pc')" 
+                        class="px-2.5 py-1 rounded font-semibold bg-minerva-gold text-minerva-dark flex items-center gap-1 transition shadow-sm" title="Visão de Monitor / Computador">
+                        <i class="fa-solid fa-laptop"></i> <span class="hidden sm:inline">PC</span>
+                    </button>
+                    <button type="button" id="btnModoMobile" onclick="setModoVisualizacao('mobile')" 
+                        class="px-2.5 py-1 rounded font-semibold text-gray-300 hover:text-white flex items-center gap-1 transition" title="Visão Celular / Smartphone">
+                        <i class="fa-solid fa-mobile-screen"></i> <span class="hidden sm:inline">Celular</span>
+                    </button>
+                </div>
+
+                <div class="hidden md:flex items-center text-xs bg-blue-950 px-3 py-1.5 rounded-full border border-blue-800 text-gray-300">
+                    <i class="fa-solid fa-bullseye text-minerva-gold mr-1"></i> Meta: <strong class="text-white ml-1">1,50 cab/h.h</strong>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container Central Flexível -->
+    <main id="containerPrincipal" class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
+        
+        <div id="gridCorpo" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Painel de Entradas (Operação do Turno) -->
+            <section id="colunaEntradas" class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between pb-3 mb-4 border-b border-gray-100">
+                    <h2 class="text-base sm:text-lg font-bold text-minerva-blue flex items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-minerva-gold"></i> Horário Balança & Turno
+                    </h2>
+                    <span class="text-xs text-gray-500 font-medium" id="currentDate"></span>
+                </div>
+
+                <div class="space-y-4">
+
+                    <!-- SEÇÃO: Horário Balança (Início e Fim) -->
+                    <div class="p-3.5 bg-amber-50/60 rounded-xl border border-amber-200/80">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold text-amber-900 uppercase">
+                                <i class="fa-solid fa-stopwatch text-minerva-gold mr-1"></i> Período de Pesagem (Balança)
+                            </label>
+                            <span id="tempoCorridoBalanca" class="text-xs font-bold bg-white text-amber-900 px-2 py-0.5 rounded shadow-sm border border-amber-200">
+                                Bruto: 08:30h
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">
+                                    1º Boi Pesado (Início):
+                                </label>
+                                <input type="time" id="horaInicioBalanca" value="06:00"
+                                    class="w-full px-3 py-2 border rounded-lg font-bold text-gray-800 text-sm focus:ring-2 focus:ring-minerva-blue focus:outline-none bg-white"
+                                    onchange="calcularTudo()">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 mb-1">
+                                    Último Boi Pesado (Fim):
+                                </label>
+                                <input type="time" id="horaFimBalanca" value="14:30"
+                                    class="w-full px-3 py-2 border rounded-lg font-bold text-gray-800 text-sm focus:ring-2 focus:ring-minerva-blue focus:outline-none bg-white"
+                                    onchange="calcularTudo()">
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-amber-800/80 mt-2">
+                            * Tempo corrido entre o primeiro e o último animal pesado no dia.
+                        </p>
+                    </div>
+
+                    <!-- Descontos: Almoço e Pausas Ergonômicas -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                                Intervalo de Almoço
+                            </label>
+                            <div class="relative">
+                                <input type="number" id="tempoAlmoco" value="1.0" step="0.25" min="0"
+                                    class="w-full pl-9 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-minerva-blue focus:outline-none text-gray-700 font-medium text-sm"
+                                    oninput="calcularTudo()">
+                                <i class="fa-solid fa-utensils absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+                            </div>
+                            <span class="text-[11px] text-gray-400">Em horas (ex.: 1 = 60 min)</span>
+                        </div>
+
+                        <!-- Pausas Ergonômicas (NR-36) -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 uppercase mb-1 flex justify-between">
+                                <span>Pausas NR-36 (20 min)</span>
+                                <span id="labelMinutosPausa" class="text-blue-700 font-bold">60m desc.</span>
+                            </label>
+                            <div class="grid grid-cols-4 gap-1">
+                                <button type="button" onclick="setPausas(0)" id="btnPausa0" class="btn-pausa py-2 text-xs font-bold rounded-lg border border-gray-300 bg-white hover:bg-gray-50">0</button>
+                                <button type="button" onclick="setPausas(1)" id="btnPausa1" class="btn-pausa py-2 text-xs font-bold rounded-lg border border-gray-300 bg-white hover:bg-gray-50">1</button>
+                                <button type="button" onclick="setPausas(2)" id="btnPausa2" class="btn-pausa py-2 text-xs font-bold rounded-lg border border-gray-300 bg-white hover:bg-gray-50">2</button>
+                                <button type="button" onclick="setPausas(3)" id="btnPausa3" class="btn-pausa py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-600 text-white shadow-sm">3</button>
+                            </div>
+                            <input type="hidden" id="qtdPausas" value="3">
+                        </div>
+                    </div>
+
+                    <!-- Resumo da Hora Líquida Balança -->
+                    <div class="flex items-center justify-between p-3 bg-blue-50/50 rounded-xl border border-blue-100 text-sm">
+                        <span class="text-gray-700 font-semibold text-xs sm:text-sm">Jornada Líquida Balança por Pessoa:</span>
+                        <span class="font-black text-minerva-blue text-sm sm:text-base" id="horasLiquidasPessoa">6,50 h (06:30)</span>
+                    </div>
+
+                    <!-- Efetivo RH (Ponto Provisório) -->
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                            Colaboradores Presentes (RH - Ponto Provisório)
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <div class="relative flex-1">
+                                <input type="number" id="colaboradores" value="120" min="1" step="1"
+                                    class="w-full pl-9 pr-3 py-2 border rounded-lg font-bold text-gray-800 text-base focus:ring-2 focus:ring-minerva-blue focus:outline-none"
+                                    oninput="calcularTudo()">
+                                <i class="fa-solid fa-users absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+
+                            <!-- Botões de ajuste rápido (+/- margem provisória) -->
+                            <div class="flex items-center space-x-1 bg-gray-100 p-1 rounded-lg border">
+                                <button type="button" onclick="ajustarEfetivo(-1)" class="w-8 h-8 rounded bg-white hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center shadow-sm text-sm active:scale-95" title="Menos 1 colaborador">-1</button>
+                                <span class="px-1 text-xs font-bold text-gray-500">±1</span>
+                                <button type="button" onclick="ajustarEfetivo(1)" class="w-8 h-8 rounded bg-white hover:bg-gray-200 text-gray-700 font-bold flex items-center justify-center shadow-sm text-sm active:scale-95" title="Mais 1 colaborador">+1</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Volume de Abate Realizado -->
+                    <div class="pt-2 border-t border-gray-100">
+                        <label class="block text-xs font-semibold text-gray-700 uppercase mb-1">
+                            Volume de Abate Realizado (Cabeças)
+                        </label>
+                        <div class="relative">
+                            <input type="number" id="cabecasAbatidas" value="1170" min="0" step="1"
+                                class="w-full pl-9 pr-3 py-2 border rounded-lg font-bold text-minerva-blue text-lg focus:ring-2 focus:ring-minerva-blue focus:outline-none"
+                                oninput="calcularTudo()">
+                            <i class="fa-solid fa-receipt absolute left-3 top-3 text-minerva-gold"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Painel de Resultados (KPIs em Tempo Real) -->
+            <section id="colunaResultados" class="lg:col-span-5 flex flex-col space-y-4">
+
+                <!-- Card Principal: Produtividade -->
+                <div class="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between relative overflow-hidden">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-[11px] sm:text-xs uppercase tracking-wider text-gray-400 font-bold">Produtividade Realizada</span>
+                            <div class="flex items-baseline space-x-2 mt-1">
+                                <span id="produtividadeAtual" class="text-4xl sm:text-5xl font-black text-gray-800 tracking-tight">1.50</span>
+                                <span class="text-xs sm:text-sm font-semibold text-gray-500">cab/h.h</span>
+                            </div>
+                        </div>
+                        <div id="badgeStatus" class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-status bg-green-100 text-green-700">
+                            Na Meta
+                        </div>
+                    </div>
+
+                    <!-- Barra de Progresso em Relação à Meta (1,50) -->
+                    <div class="my-4">
+                        <div class="flex justify-between text-xs font-semibold mb-1">
+                            <span class="text-gray-500">Atingimento da Meta (1,50)</span>
+                            <span id="percentualMeta" class="text-minerva-blue font-bold">100.0%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div id="barraProgresso" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Indicadores complementares -->
+                    <div class="grid grid-cols-2 gap-2.5 pt-3 border-t border-gray-100 text-xs">
+                        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                            <span class="text-gray-400 block font-medium">Horas Totais Setor</span>
+                            <strong class="text-xs sm:text-sm font-bold text-gray-700" id="totalHorasSetor">780.0 h</strong>
+                        </div>
+                        <div class="bg-gray-50 p-2.5 rounded-lg border border-gray-100">
+                            <span class="text-gray-400 block font-medium">Meta em Cabeças</span>
+                            <strong class="text-xs sm:text-sm font-bold text-gray-700" id="cabecasNecessarias">1.170 cab</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulação de Sensibilidade do Ponto (±3 Colaboradores) -->
+                <div class="bg-white p-4 sm:p-5 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                        <span><i class="fa-solid fa-arrows-split-up-and-left mr-1 text-minerva-gold"></i> Sensibilidade Ponto (±3)</span>
+                        <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-600">Simulação Imediata</span>
+                    </h3>
+
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                        <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
+                            <span class="text-gray-400 block text-[10px] font-semibold">-3 Pessoas</span>
+                            <strong class="text-xs sm:text-sm font-bold text-gray-800" id="prodMenos3">1.54</strong>
+                            <span class="block text-[10px] text-gray-500" id="efetivoMenos3">117 pess.</span>
+                        </div>
+                        <div class="p-2 bg-blue-50/80 rounded-xl border border-blue-200">
+                            <span class="text-blue-600 block text-[10px] font-bold">Ponto Atual</span>
+                            <strong class="text-xs sm:text-sm font-black text-blue-900" id="prodAtualSimulada">1.50</strong>
+                            <span class="block text-[10px] text-blue-700" id="efetivoAtual">120 pess.</span>
+                        </div>
+                        <div class="p-2 bg-gray-50 rounded-xl border border-gray-100">
+                            <span class="text-gray-400 block text-[10px] font-semibold">+3 Pessoas</span>
+                            <strong class="text-xs sm:text-sm font-bold text-gray-800" id="prodMais3">1.46</strong>
+                            <span class="block text-[10px] text-gray-500" id="efetivoMais3">123 pess.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botão Copiar para WhatsApp -->
+                <button type="button" onclick="copiarResumo()"
+                    class="w-full bg-minerva-blue hover:bg-minerva-dark text-white font-bold py-3 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-sm active:scale-[0.98]">
+                    <i class="fa-brands fa-whatsapp text-green-400 text-base"></i>
+                    <span>Copiar Resumo para WhatsApp</span>
+                </button>
+                <div id="alertaCopiado" class="hidden text-center text-xs text-green-600 font-bold">
+                    <i class="fa-solid fa-circle-check mr-1"></i> Resumo copiado com sucesso!
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Rodapé Corporativo -->
+    <footer class="bg-white border-t border-gray-200 py-2.5 text-center text-[11px] text-gray-500">
+        Minerva Foods • Controle Operacional Industrial • Meta: 1,50 cab/h.h
+    </footer>
+
+    <!-- Lógica de Funcionamento -->
+    <script>
+        const META_UNIDADE = 1.50;
+
+        // Data do dia
+        const agora = new Date();
+        document.getElementById('currentDate').innerText = agora.toLocaleDateString('pt-BR', {
+            weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+        }).toUpperCase();
+
+        // Alternador de Visualização (PC vs Mobile)
+        function setModoVisualizacao(modo) {
+            const container = document.getElementById('containerPrincipal');
+            const grid = document.getElementById('gridCorpo');
+            const colEntradas = document.getElementById('colunaEntradas');
+            const colResultados = document.getElementById('colunaResultados');
+            const btnPC = document.getElementById('btnModoPC');
+            const btnMob = document.getElementById('btnModoMobile');
+
+            if (modo === 'mobile') {
+                // Força o container a se comportar como uma tela de celular (max 420px centralizado)
+                container.className = "max-w-md mx-auto px-3 py-4 w-full flex-grow";
+                grid.className = "grid grid-cols-1 gap-4";
+                colEntradas.className = "bg-white p-4 rounded-2xl shadow-sm border border-gray-200";
+                colResultados.className = "flex flex-col space-y-4";
+
+                btnMob.className = "px-2.5 py-1 rounded font-semibold bg-minerva-gold text-minerva-dark flex items-center gap-1 transition shadow-sm";
+                btnPC.className = "px-2.5 py-1 rounded font-semibold text-gray-300 hover:text-white flex items-center gap-1 transition";
+            } else {
+                // Modo PC / Monitor Expandido
+                container.className = "max-w-6xl mx-auto px-4 py-6 w-full flex-grow";
+                grid.className = "grid grid-cols-1 lg:grid-cols-12 gap-6";
+                colEntradas.className = "lg:col-span-7 bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-200";
+                colResultados.className = "lg:col-span-5 flex flex-col space-y-4";
+
+                btnPC.className = "px-2.5 py-1 rounded font-semibold bg-minerva-gold text-minerva-dark flex items-center gap-1 transition shadow-sm";
+                btnMob.className = "px-2.5 py-1 rounded font-semibold text-gray-300 hover:text-white flex items-center gap-1 transition";
+            }
+        }
+
+        // Controle de Pausas da NR-36
+        function setPausas(qtd) {
+            document.getElementById('qtdPausas').value = qtd;
+            for (let i = 0; i <= 3; i++) {
+                const btn = document.getElementById(`btnPausa${i}`);
+                if (i === qtd) {
+                    btn.className = "btn-pausa py-2 text-xs font-bold rounded-lg border border-blue-600 bg-blue-600 text-white shadow-sm";
+                } else {
+                    btn.className = "btn-pausa py-2 text-xs font-bold rounded-lg border border-gray-300 bg-white hover:bg-gray-50";
+                }
+            }
+            const minutos = qtd * 20;
+            document.getElementById('labelMinutosPausa').innerText = `${minutos}m desc.`;
+            calcularTudo();
+        }
+
+        // Ajuste fino de efetivo
+        function ajustarEfetivo(delta) {
+            const inputEfetivo = document.getElementById('colaboradores');
+            let atual = parseInt(inputEfetivo.value) || 0;
+            atual += delta;
+            if (atual < 1) atual = 1;
+            inputEfetivo.value = atual;
+            calcularTudo();
+        }
+
+        // Cálculo da diferença de horários em horas decimais
+        function calcularHorasBalanca(horaIni, horaFim) {
+            if (!horaIni || !horaFim) return 0;
+            const [h1, m1] = horaIni.split(':').map(Number);
+            const [h2, m2] = horaFim.split(':').map(Number);
+
+            let minutosIni = h1 * 60 + m1;
+            let minutosFim = h2 * 60 + m2;
+
+            // Se o término for menor que início (ex: virou meia-noite)
+            if (minutosFim < minutosIni) {
+                minutosFim += 24 * 60;
+            }
+
+            const diferencaMinutos = minutosFim - minutosIni;
+            return diferencaMinutos / 60;
+        }
+
+        function calcularTudo() {
+            const horaIni = document.getElementById('horaInicioBalanca').value;
+            const horaFim = document.getElementById('horaFimBalanca').value;
+            const tempoAlmoco = parseFloat(document.getElementById('tempoAlmoco').value) || 0;
+            const qtdPausas = parseInt(document.getElementById('qtdPausas').value) || 0;
+            const efetivo = parseInt(document.getElementById('colaboradores').value) || 0;
+            const cabecas = parseFloat(document.getElementById('cabecasAbatidas').value) || 0;
+
+            // 1. Duração Bruta da Balança
+            const duracaoBalancaBruta = calcularHorasBalanca(horaIni, horaFim);
+            const bHoras = Math.floor(duracaoBalancaBruta);
+            const bMinutos = Math.round((duracaoBalancaBruta - bHoras) * 60);
+            document.getElementById('tempoCorridoBalanca').innerText = `Bruto: ${bHoras.toString().padStart(2, '0')}:${bMinutos.toString().padStart(2, '0')}h`;
+
+            // 2. Tempo de Pausa (20 min por pausa)
+            const tempoPausaHoras = (qtdPausas * 20) / 60;
+
+            // 3. Tempo Líquido Real Trabalhado por Colaborador
+            let tempoLiquidoIndividual = duracaoBalancaBruta - tempoAlmoco - tempoPausaHoras;
+            if (tempoLiquidoIndividual < 0) tempoLiquidoIndividual = 0;
+
+            const lHoras = Math.floor(tempoLiquidoIndividual);
+            const lMinutos = Math.round((tempoLiquidoIndividual - lHoras) * 60);
+            document.getElementById('horasLiquidasPessoa').innerText = `${tempoLiquidoIndividual.toFixed(2)} h (${lHoras.toString().padStart(2, '0')}:${lMinutos.toString().padStart(2, '0')})`;
+
+            // 4. Horas Totais do Setor
+            const totalHorasSetor = efetivo * tempoLiquidoIndividual;
+            document.getElementById('totalHorasSetor').innerText = `${totalHorasSetor.toFixed(1)} h`;
+
+            // 5. Produtividade Realizada
+            let produtividade = 0;
+            if (totalHorasSetor > 0) {
+                produtividade = cabecas / totalHorasSetor;
+            }
+            document.getElementById('produtividadeAtual').innerText = produtividade.toFixed(2);
+
+            // 6. Percentual da Meta
+            const percentual = META_UNIDADE > 0 ? (produtividade / META_UNIDADE) * 100 : 0;
+            document.getElementById('percentualMeta').innerText = `${percentual.toFixed(1)}%`;
+
+            // 7. Estilos e Barra de Progresso
+            const barra = document.getElementById('barraProgresso');
+            const badge = document.getElementById('badgeStatus');
+            const barraLargura = Math.min(percentual, 100);
+            barra.style.width = `${barraLargura}%`;
+
+            if (produtividade >= META_UNIDADE) {
+                badge.innerText = "Na Meta / Acima";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-status bg-green-100 text-green-700";
+                barra.className = "bg-green-500 h-3 rounded-full transition-all duration-500";
+            } else if (produtividade >= META_UNIDADE * 0.90) {
+                badge.innerText = "Atenção (Próximo)";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-status bg-yellow-100 text-yellow-700";
+                barra.className = "bg-yellow-500 h-3 rounded-full transition-all duration-500";
+            } else {
+                badge.innerText = "Abaixo da Meta";
+                badge.className = "px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-status bg-red-100 text-red-700";
+                barra.className = "bg-red-500 h-3 rounded-full transition-all duration-500";
+            }
+
+            // 8. Cabeças necessárias para a meta de 1,50
+            const cabecasMeta = Math.ceil(totalHorasSetor * META_UNIDADE);
+            document.getElementById('cabecasNecessarias').innerText = `${cabecasMeta.toLocaleString('pt-BR')} cab`;
+
+            // 9. Sensibilidade (±3 pessoas)
+            atualizarSensibilidade(efetivo, tempoLiquidoIndividual, cabecas);
+        }
+
+        function atualizarSensibilidade(efetivo, tempoLiquido, cabecas) {
+            // -3 pessoas
+            const efMenos3 = Math.max(1, efetivo - 3);
+            const horasMenos3 = efMenos3 * tempoLiquido;
+            const prodMenos3 = horasMenos3 > 0 ? cabecas / horasMenos3 : 0;
+            document.getElementById('prodMenos3').innerText = prodMenos3.toFixed(2);
+            document.getElementById('efetivoMenos3').innerText = `${efMenos3} pess.`;
+
+            // Atual
+            const horasAtual = efetivo * tempoLiquido;
+            const prodAtual = horasAtual > 0 ? cabecas / horasAtual : 0;
+            document.getElementById('prodAtualSimulada').innerText = prodAtual.toFixed(2);
+            document.getElementById('efetivoAtual').innerText = `${efetivo} pess.`;
+
+            // +3 pessoas
+            const efMais3 = efetivo + 3;
+            const horasMais3 = efMais3 * tempoLiquido;
+            const prodMais3 = horasMais3 > 0 ? cabecas / horasMais3 : 0;
+            document.getElementById('prodMais3').innerText = prodMais3.toFixed(2);
+            document.getElementById('efetivoMais3').innerText = `${efMais3} pess.`;
+        }
+
+        function copiarResumo() {
+            const dataHoje = document.getElementById('currentDate').innerText;
+            const produtividade = document.getElementById('produtividadeAtual').innerText;
+            const percentual = document.getElementById('percentualMeta').innerText;
+            const cabecas = document.getElementById('cabecasAbatidas').value;
+            const efetivo = document.getElementById('colaboradores').value;
+            const horasSetor = document.getElementById('totalHorasSetor').innerText;
+            const horasPessoa = document.getElementById('horasLiquidasPessoa').innerText;
+            const hIni = document.getElementById('horaInicioBalanca').value;
+            const hFim = document.getElementById('horaFimBalanca').value;
+            const prodMenos3 = document.getElementById('prodMenos3').innerText;
+            const prodMais3 = document.getElementById('prodMais3').innerText;
+
+            const texto = `📊 *MINERVA FOODS - PRODUTIVIDADE ABATE* 📊
+📅 *Data:* ${dataHoje}
+🎯 *Meta da Unidade:* ${META_UNIDADE.toFixed(2)} cab/h.h
+
+⚖️ *Horário Balança:* ${hIni} às ${hFim}
+⏳ *Tempo Líq./Pessoa:* ${horasPessoa}
+👥 *Efetivo Ponto Provisório:* ${efetivo} pessoas
+⌛ *Total Horas Trabalhadas:* ${horasSetor}
+🥩 *Abate Realizado:* ${cabecas} cabeças
+
+⚡ *PRODUTIVIDADE: ${produtividade} cab/h.h* (${percentual} da meta)
+
+🔍 *Sensibilidade de Ponto (±3):*
+• Cenário -3 pessoas: *${prodMenos3} cab/h.h*
+• Cenário +3 pessoas: *${prodMais3} cab/h.h*`;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                const alerta = document.getElementById('alertaCopiado');
+                alerta.classList.remove('hidden');
+                setTimeout(() => alerta.classList.add('hidden'), 3500);
+            }).catch(err => {
+                alert("Resumo gerado! Copie manualmente se o navegador bloquear.");
+            });
+        }
+
+        window.onload = function() {
+            calcularTudo();
+        };
+    </script>
+</body>
+</html>
