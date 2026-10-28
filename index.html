@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minerva Foods - Produtividade de Abate CMI</title>
-    <!-- Configuracoes para Celular / iPhone -->
+    <!-- Configurações para Celular / iPhone -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Produtividade Abate">
@@ -59,7 +59,7 @@
                     </h1>
                     <div class="flex items-center gap-2 mt-0.5">
                         <span id="statusCMI" class="text-[11px] bg-[#1a542b]/60 text-green-300 border border-[#299c46]/40 px-2 py-0.5 rounded-full flex items-center gap-1.5 font-medium">
-                            <span class="w-2 h-2 rounded-full bg-[#299c46] animate-pulse"></span> CMI Conectado (306 Cb)
+                            <span class="w-2 h-2 rounded-full bg-[#299c46] animate-pulse"></span> CMI Conectado
                         </span>
                     </div>
                 </div>
@@ -67,16 +67,10 @@
 
             <!-- Controles do Topo -->
             <div class="flex items-center space-x-2">
-                <button type="button" onclick="abrirModalIntegracao()" title="Configurar Conexao CMI"
-                    class="bg-[#22252b] hover:bg-[#2c3038] text-gray-300 p-1.5 px-2.5 rounded-lg border border-[#333842] text-xs flex items-center gap-1.5 transition">
-                    <i class="fa-solid fa-plug text-[#f2c037]"></i>
-                    <span class="hidden sm:inline text-[11px]">Conexao CMI</span>
-                </button>
-
-                <button type="button" onclick="sincronizarManual()" title="Sincronizar agora"
+                <button type="button" onclick="buscarDadosCMI()" title="Sincronizar agora"
                     class="bg-[#3274d9] hover:bg-blue-600 text-white p-1.5 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow active:scale-95 transition">
                     <i class="fa-solid fa-rotate" id="iconeSync"></i>
-                    <span class="text-[11px]">Sincronizar</span>
+                    <span class="text-[11px]">Sincronizar CMI</span>
                 </button>
 
                 <div class="bg-[#22252b] p-1 rounded-lg border border-[#333842] flex items-center text-xs">
@@ -255,7 +249,7 @@
                             Volume de Abate Realizado (Cabecas)
                         </label>
                         <span class="text-[10px] text-green-400 font-bold flex items-center gap-1 font-mono">
-                            <i class="fa-solid fa-bolt text-[#f2c037]"></i> CMI CARD VERDE
+                            <i class="fa-solid fa-bolt text-[#f2c037]"></i> AUTO CMI GRAFANA
                         </span>
                     </div>
                     <div class="relative">
@@ -270,7 +264,6 @@
             <!-- COLUNA DIREITA: TACÔMETRO UNIFORME & RESULTADOS -->
             <section id="colunaResultados" class="lg:col-span-5 flex flex-col space-y-4">
                 
-                <!-- CARD TACÔMETRO COM ARCO PERFEITAMENTE LISO E UNIFORME -->
                 <div class="bg-[#181b1f] p-5 rounded-2xl border border-[#262931] shadow-sm flex flex-col items-center justify-between relative">
                     <div class="w-full flex justify-between items-start mb-2">
                         <span class="text-xs uppercase tracking-wider text-gray-400 font-bold">Produtividade Realizada</span>
@@ -279,21 +272,21 @@
                         </div>
                     </div>
 
-                    <!-- GAUGE SEMICIRCULAR 100% UNIFORME (SEM RELEVO / SEM DEGRIFES) -->
+                    <!-- GAUGE SEMICIRCULAR 100% UNIFORME -->
                     <div class="gauge-container my-1">
                         <svg viewBox="0 0 200 115" class="w-full">
-                            <!-- Trilho Base Fundo Escuro -->
+                            <!-- Trilho Base Fundo -->
                             <path d="M 25 100 A 75 75 0 0 1 175 100" fill="none" stroke="#22252b" stroke-width="14" stroke-linecap="butt" />
 
-                            <!-- Segmento Vermelho: Abaixo de 1.19 (0.00 a 1.19 -> 0 a 72 graus -> 94.25 px) -->
+                            <!-- Segmento Vermelho: Abaixo de 1.19 -->
                             <path d="M 25 100 A 75 75 0 0 1 175 100" fill="none" stroke="#e02f44" stroke-width="14" stroke-linecap="butt"
                                 stroke-dasharray="94.25 300" stroke-dashoffset="0" />
 
-                            <!-- Segmento Amarelo: 1.20 ate 1.49 (72 a 90 graus -> 23.56 px) -->
+                            <!-- Segmento Amarelo: 1.20 ate 1.49 -->
                             <path d="M 25 100 A 75 75 0 0 1 175 100" fill="none" stroke="#f2c037" stroke-width="14" stroke-linecap="butt"
                                 stroke-dasharray="23.56 300" stroke-dashoffset="-94.25" />
 
-                            <!-- Segmento Verde: 1.50 ou Mais (90 a 180 graus -> 117.81 px) -->
+                            <!-- Segmento Verde: 1.50 ou Mais -->
                             <path d="M 25 100 A 75 75 0 0 1 175 100" fill="none" stroke="#299c46" stroke-width="14" stroke-linecap="butt"
                                 stroke-dasharray="117.81 300" stroke-dashoffset="-117.81" />
 
@@ -308,7 +301,7 @@
                             </g>
                         </svg>
 
-                        <!-- Leitura Digital Centralizada com Cor Dinamica -->
+                        <!-- Leitura Digital Centralizada -->
                         <div class="text-center -mt-5">
                             <span id="produtividadeAtual" class="text-4xl sm:text-5xl font-black text-green-400 tracking-tight">1.50</span>
                             <span class="text-xs text-gray-400 block font-semibold">cab/h.h</span>
@@ -370,39 +363,12 @@
         </div>
     </main>
 
-    <!-- Modal de Configuracao da Integracao CMI -->
-    <div id="modalConfig" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-[#181b1f] border border-[#262931] max-w-md w-full rounded-2xl p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center pb-2 border-b border-[#262931]">
-                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-plug text-[#f2c037]"></i> Conexao Direta CMI Grafana
-                </h3>
-                <button onclick="fecharModalIntegracao()" class="text-gray-400 hover:text-white text-lg">&times;</button>
-            </div>
-            <p class="text-xs text-gray-400">
-                Atualize o valor de cabecas ou informe o endpoint do seu robo:
-            </p>
-            <div>
-                <label class="block text-xs font-semibold text-gray-300 mb-1">Atualizar Cabecas Manualmente:</label>
-                <input type="number" id="inputCabecasModal" value="306" class="w-full px-3 py-2 bg-[#111217] border border-[#333842] rounded-lg text-white font-bold text-sm">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-gray-300 mb-1">URL da API / Webhook:</label>
-                <input type="text" id="inputUrlApi" value="https://api.npoint.io/b0892d6604bc16c1c144" class="w-full px-3 py-1.5 bg-[#111217] border border-[#333842] rounded-lg text-gray-400 text-xs font-mono">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="fecharModalIntegracao()" class="px-3 py-1.5 bg-[#22252b] text-gray-300 rounded-lg text-xs font-semibold">Fechar</button>
-                <button onclick="aplicarModalIntegracao()" class="px-4 py-1.5 bg-[#299c46] text-white rounded-lg text-xs font-bold">Aplicar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Rodape -->
     <footer class="bg-[#181b1f] border-t border-[#262931] py-2 text-center text-[11px] text-gray-500">
         Minerva Foods - Gestao da Producao Industrial - Meta: 1,50 cab/h.h
     </footer>
 
-    <!-- LÓGICA DE CÁLCULO E RANGES DO TACÔMETRO -->
+    <!-- LÓGICA DE CÁLCULO E LEITURA DIRETA DO GITHUB -->
     <script>
         const META_UNIDADE = 1.50;
 
@@ -479,19 +445,16 @@
             const cabecas = parseFloat(document.getElementById('cabecasAbatidas').value) || 0;
             const velocidadeLinha = parseFloat(document.getElementById('velocidadeLinha').value) || 0;
 
-            // Atualiza Cards Superiores
             document.getElementById('cardVelocidade').innerText = velocidadeLinha;
             document.getElementById('cardTotalAbate').innerText = Math.round(cabecas);
             document.getElementById('cardHoraInicio').innerText = horaIni;
             document.getElementById('cardHoraFim').innerText = horaFim;
 
-            // Duracao Bruta Balanca
             const duracaoBalancaBruta = calcularHorasBalanca(horaIni, horaFim);
             const bHoras = Math.floor(duracaoBalancaBruta);
             const bMinutos = Math.round((duracaoBalancaBruta - bHoras) * 60);
             document.getElementById('tempoCorridoBalanca').innerText = `Bruto: ${bHoras.toString().padStart(2, '0')}:${bMinutos.toString().padStart(2, '0')}h`;
 
-            // Jornada Liquida por Pessoa
             const tempoPausaHoras = (qtdPausas * 20) / 60;
             let tempoLiquidoIndividual = duracaoBalancaBruta - tempoAlmoco - tempoPausaHoras;
             if (tempoLiquidoIndividual < 0) tempoLiquidoIndividual = 0;
@@ -500,7 +463,6 @@
             const lMinutos = Math.round((tempoLiquidoIndividual - lHoras) * 60);
             document.getElementById('horasLiquidasPessoa').innerText = `${tempoLiquidoIndividual.toFixed(2)} h (${lHoras.toString().padStart(2, '0')}:${lMinutos.toString().padStart(2, '0')})`;
 
-            // Capacidade e Eficiencia de Linha
             const capacidadeTeorica = Math.round(tempoLiquidoIndividual * velocidadeLinha);
             document.getElementById('badgeRitmoLinha').innerText = `Capacidade: ${capacidadeTeorica} cab`;
 
@@ -510,7 +472,6 @@
             }
             document.getElementById('eficienciaLinha').innerText = `${eficienciaLinha.toFixed(1)}%`;
 
-            // Produtividade Realizada
             const totalHorasSetor = efetivo * tempoLiquidoIndividual;
             document.getElementById('totalHorasSetor').innerText = `${totalHorasSetor.toFixed(1)} h`;
 
@@ -523,8 +484,7 @@
             const percentual = META_UNIDADE > 0 ? (produtividade / META_UNIDADE) * 100 : 0;
             document.getElementById('percentualMeta').innerText = `${percentual.toFixed(1)}%`;
 
-            // ATUALIZAR AGULHA DO TACÔMETRO (GAUGE)
-            // Escala: 0.00 = -90deg, 1.20 = -18deg, 1.50 (Meta) = 0deg (Centro Topo), 2.50 = +90deg
+            // TACÔMETRO: < 1.20 Vermelho | 1.20 a 1.49 Amarelo | >= 1.50 Verde
             let angulo = -90;
             if (produtividade <= 1.50) {
                 angulo = -90 + (produtividade / 1.50) * 90;
@@ -537,8 +497,6 @@
             const needle = document.getElementById('needleGroup');
             needle.style.transform = `rotate(${angulo}deg)`;
 
-            // REGRAS DE CORES E STATUS SOLICITADAS:
-            // < 1.20: Vermelho | 1.20 a 1.49: Amarelo | >= 1.50: Verde
             const badge = document.getElementById('badgeStatus');
             const txtProd = document.getElementById('produtividadeAtual');
 
@@ -578,48 +536,34 @@
             document.getElementById('efetivoMais3').innerText = `${efMais3} pess.`;
         }
 
-        // SINCRONIZACAO COM O CMI
-        async function sincronizarManual() {
+        // LEITURA DIRETA DO GITHUB (DADOS.JSON) - RESPOSTA IMEDIATA EM 0.1s
+        async function buscarDadosCMI() {
             const icon = document.getElementById('iconeSync');
+            const statusBadge = document.getElementById('statusCMI');
             if (icon) icon.classList.add('fa-spin');
 
-            const url = localStorage.getItem('cmi_url_api') || "https://api.npoint.io/b0892d6604bc16c1c144";
             try {
-                const res = await fetch(url + "?t=" + Date.now());
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.cabecas !== undefined) {
-                        let c = typeof data.cabecas === 'string' ? parseFloat(data.cabecas.replace(/\D/g, '')) : data.cabecas;
-                        if (c > 0) {
-                            document.getElementById('cabecasAbatidas').value = Math.round(c);
-                            calcularTudo();
-                        }
+                // Lê diretamente o dados.json hospedado junto com o index.html
+                const res = await fetch('dados.json?t=' + Date.now());
+                if (!res.ok) throw new Error("Aguardando arquivo dados.json");
+
+                const data = await res.json();
+                if (data && data.cabecas !== undefined) {
+                    const c = parseInt(data.cabecas) || 0;
+                    if (c > 0) {
+                        document.getElementById('cabecasAbatidas').value = c;
+                        calcularTudo();
                     }
+                    const hora = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                    statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-[#299c46]"></span> CMI: ${c} Cb (${hora})`;
+                    statusBadge.className = "text-[11px] bg-[#1a542b]/60 text-green-300 border border-[#299c46]/40 px-2 py-0.5 rounded-full flex items-center gap-1.5 font-medium";
                 }
-            } catch (e) {
-                console.warn(e);
+            } catch (err) {
+                statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> CMI Aguardando`;
+                statusBadge.className = "text-[11px] bg-yellow-950/60 text-yellow-300 border border-yellow-500/40 px-2 py-0.5 rounded-full flex items-center gap-1.5 font-medium";
             } finally {
                 if (icon) icon.classList.remove('fa-spin');
             }
-        }
-
-        function abrirModalIntegracao() {
-            document.getElementById('modalConfig').classList.remove('hidden');
-        }
-
-        function fecharModalIntegracao() {
-            document.getElementById('modalConfig').classList.add('hidden');
-        }
-
-        function aplicarModalIntegracao() {
-            const c = parseFloat(document.getElementById('inputCabecasModal').value) || 0;
-            if (c > 0) {
-                document.getElementById('cabecasAbatidas').value = Math.round(c);
-                calcularTudo();
-            }
-            const url = document.getElementById('inputUrlApi').value;
-            if (url) localStorage.setItem('cmi_url_api', url);
-            fecharModalIntegracao();
         }
 
         // COPIAR RELATORIO WHATSAPP (SEM EMOJIS)
@@ -664,6 +608,8 @@ Sensibilidade de Ponto (+/- 3):
 
         window.onload = function() {
             calcularTudo();
+            buscarDadosCMI();
+            setInterval(buscarDadosCMI, 30000); // Polling a cada 30 segundos
         };
     </script>
 </body>
